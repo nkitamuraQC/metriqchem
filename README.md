@@ -13,3 +13,19 @@ This program is a toy code that implements a Hamiltonian based on a spatial metr
 
 ## Usage
 - See test.py
+
+## Citation
+
+If you use this work in your research, please cite:
+
+```bibtex
+@misc{
+    metriqchem2026,
+    author       = {Naoki Kitamura},   
+    title        = {metriqchem},   
+    year         = {2026},   
+    howpublished = {\url{https://github.com/nkitamuraQC/metriqchem.git}}, 
+} 
+```
+
+
