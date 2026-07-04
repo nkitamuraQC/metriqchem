@@ -50,14 +50,14 @@ class FreeElecGasMetric:
     
     def make_manual_grids(self, nx=4, ny=4, nz=4, x_range=(0, 1), y_range=(0, 1), z_range=(0, 1)):
         """
-        手動でグリッドを生成する。
+        Generates a manual grid based on specified ranges and number of points in each direction.
 
         Parameters
         ----------
         nx, ny, nz : int
-            x, y, z方向のグリッド点数。
+            Number of grid points in x, y, z directions.
         x_range, y_range, z_range : tuple
-            各方向の範囲 (min, max)。
+            Range for each direction (min, max).
         """
         x = np.linspace(x_range[0], x_range[1], nx)
         y = np.linspace(y_range[0], y_range[1], ny)
