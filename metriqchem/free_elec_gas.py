@@ -172,43 +172,34 @@ class FreeElecGasMetric:
         Ngrid = self.ao_value.shape[0]
         nao = self.ao_value.shape[1]
         term1 = np.zeros((nao, nao))
+
+        det_g_inv = 1.0/self.g_ij_det_values  # (Ngrid,)
+        det_g_inv = np.nan_to_num(det_g_inv, copy=False, nan=0.0, posinf=0.0, neginf=0.0)  # 発散チェック
         
         ## term1
-        for i in range(Ngrid):
-            det_g_inv = self.g_ij_det_values[i] ** (-1)  # スカラー
-            if det_g_inv > 1e10 or np.isnan(det_g_inv):  # 発散チェック
-                if self.divergence_check:
-                    print(f"Warning: det(g_ij)^{-1} is too large at grid point {i}. Setting to 0.")
-                det_g_inv = 0.001
-            ao_value = self.ao_value[i, :]  # (3, Nao)
-            for dx_i in range(3):
-                g_ij_grad_val = self.g_ij_det_grad_values[i, dx_i]  # (3, 3)
-                # print(f"Grid point {i}, dx_i {dx_i}, g_ij_grad_val: {g_ij_grad_val}")
-                for dx_j in range(3):
-                    g_ij_up_val = self.g_ij_up_values[i, dx_i, dx_j] # (3, 3)
-                    ao_grad_j = self.ao_grad[dx_j, i, :]  # (Nao,)
-                    term1 += np.outer(ao_value, ao_grad_j) * g_ij_up_val * self.weights[i] \
-                        * det_g_inv * g_ij_grad_val
+        for dx_i in range(3):
+            g_ij_grad_val = self.g_ij_det_grad_values[:, dx_i]  
+            for dx_j in range(3):
+                g_ij_up_val = self.g_ij_up_values[:, dx_i, dx_j] 
+                ao_grad_j = self.ao_grad[dx_j]  
+                term1 += np.einsum('gi,gj,g,g,g,g->ij', self.ao_value, ao_grad_j, g_ij_up_val, self.weights, det_g_inv, g_ij_grad_val)  # (Nao, Nao)
                     
         ## term2
         term2 = np.zeros((nao, nao))
-        for i in range(Ngrid):
-            ao_value = self.ao_value[i, :]  # (3, Nao)
-            for dx_i in range(3):
-                g_ij_grad_val = self.g_ij_grad_values[i, dx_i]  # (3, 3)
-                for dx_j in range(3):
-                    ao_grad_j = self.ao_grad[dx_j, i, :]  # (Nao,)
-                    term2 += np.outer(ao_value, ao_grad_j) * self.weights[i] * g_ij_grad_val[dx_i, dx_j]
+        for dx_i in range(3):
+            g_ij_grad_val = self.g_ij_grad_values[:, dx_i]  # (Ngrid, 3)
+            for dx_j in range(3):
+                ao_grad_j = self.ao_grad[dx_j]  # (Nao,)
+                term2 += np.einsum('gi,gj,g,g->ij', self.ao_value, ao_grad_j, self.weights, g_ij_grad_val[:, dx_i, dx_j])
 
         ## term3
         term3 = np.zeros((nao, nao))
-        for i in range(Ngrid):
-            ao_value = self.ao_value[i, :]  # (3, Nao)
-            g_ij_up_val = self.g_ij_up_values[i] # (3, 3)
-            for dx_i in range(3):
-                for dx_j in range(3):
-                    ao_hess_ij = self.ao_hess[dx_i, dx_j, i, :]  # (Nao,)
-                    term3 += np.outer(ao_value, ao_hess_ij) * self.weights[i] * g_ij_up_val[dx_i, dx_j]
+        for dx_i in range(3):
+            for dx_j in range(3):
+                ao_hess_ij = self.ao_hess[dx_i, dx_j]  
+                g_ij_up_val = self.g_ij_up_values[:, dx_i, dx_j]
+                term3 += np.einsum('gi,gj,g,g->ij', self.ao_value, ao_hess_ij, self.weights, g_ij_up_val)
+
 
         ham = term1 + term2 + term3
         return ham
