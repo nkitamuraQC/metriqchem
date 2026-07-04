@@ -1,5 +1,5 @@
 # metriqchem
-We have created a toy model of an electronic system without nuclear-electron or electron-electron interactions, based on a localized orbital formulation that specifies a spatial metric. Please refer to Equation 2.10 in the link below.
+We have created a toy model of an electronic system without nuclear-electron or electron-electron interactions, based on a localized orbital that specifies a spatial metric. Please refer to Equation 2.10 in the link below.
 This program is a toy code that implements a Hamiltonian based on a spatial metric.
 
 ## Requirements
