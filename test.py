@@ -34,7 +34,7 @@ def test_free_elec_gas_metric():
     e_tb = np.linalg.eigvals(h1e)  # ハミルトニアンの固有値を計算して確認
 
     nx, ny, nz = 5, 5, 5
-    a = 0.1
+    a = 1.0
     free_elec_gas = FreeElecGasMetric(mol, a=a)
     e_metric = free_elec_gas.run(nx=nx, ny=ny, nz=nz)
     print("Eigenvalues of the core Hamiltonian:", e_tb)

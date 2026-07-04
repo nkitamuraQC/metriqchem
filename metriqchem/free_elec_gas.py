@@ -201,7 +201,7 @@ class FreeElecGasMetric:
                 term3 += np.einsum('gi,gj,g,g->ij', self.ao_value, ao_hess_ij, self.weights, g_ij_up_val)
 
 
-        ham = term1 + term2 + term3
+        ham = (term1 * 0.5 + term2 + term3) * -1
         return ham
     
 
